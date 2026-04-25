@@ -1,0 +1,42 @@
+{
+  "name": "aifirst-template",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3024",
+    "build": "next build",
+    "start": "next start --port 3024",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check:env-contract": "tsx scripts/check-env-contract.ts",
+    "smoke:local": "tsx scripts/smoke-local.ts",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run check:env-contract -- .env.test.example"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/s3-request-presigner": "^3.800.0",
+    "@clerk/nextjs": "^6.15.0",
+    "drizzle-orm": "^0.45.2",
+    "inngest": "^3.34.0",
+    "next": "^15.3.0",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.15",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}
