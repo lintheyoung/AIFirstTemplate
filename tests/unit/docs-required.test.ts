@@ -18,7 +18,23 @@ const requiredDocs = [
   },
   {
     path: 'docs/environment-runbook.md',
-    requiredTerms: ['npm run check:env-contract', '.env.test.example', '.env.production.example'],
+    requiredTerms: [
+      'npm run check:env-contract',
+      '.env.test.example',
+      '.env.production.example',
+      'npm run deploy:preflight',
+    ],
+  },
+  {
+    path: 'docs/deployment-runbook.md',
+    requiredTerms: [
+      'npm run deploy:preflight',
+      'npm run smoke:hosted',
+      'SMOKE_EXPECT_REGION=sin1',
+      'https://test.app.pest.gg/api/inngest',
+      'https://app.pest.gg/api/inngest',
+      'x-vercel-id',
+    ],
   },
   {
     path: 'docs/release-playbook.md',
@@ -27,10 +43,11 @@ const requiredDocs = [
       'npm run typecheck',
       'npm run lint',
       'npm run build',
-      'requireDemoActor()',
-      'pre-production adoption task',
+      'requireClerkActor()',
+      'AUTH_UNAUTHORIZED',
       'runJobInline()',
-      'queue smoke is required only after background execution is wired',
+      'app/api/inngest/route.ts',
+      'job.created',
     ],
   },
   {

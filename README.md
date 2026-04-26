@@ -51,6 +51,7 @@ projects, databases, buckets, and keys for `test` and `prod` before deploying.
 | `R2_PUBLIC_BASE_URL` | Your R2 public bucket URL or custom domain | Only needed for public file URLs. Keep private file access on signed URLs. |
 | `INNGEST_EVENT_KEY` | [Inngest Dashboard](https://app.inngest.com/) -> environment -> **Manage** -> **Event Keys** | Used to send events. Inngest docs: [Creating an Event Key](https://www.inngest.com/docs/events/creating-an-event-key). |
 | `INNGEST_SIGNING_KEY` | [Inngest Dashboard](https://app.inngest.com/) -> environment -> **Signing Key** | Used to verify Inngest requests. Inngest docs: [Signing keys](https://www.inngest.com/docs/platform/signing-keys). |
+| `INNGEST_ENV` | Your Inngest environment name | Keeps function sync and events grouped under the intended Inngest environment, for example `test` or `Production`. |
 
 After filling an env file, run:
 
@@ -70,6 +71,10 @@ npm run lint
 npm run build
 ```
 
+Before hosted deploys, run `npm run deploy:preflight`. After assigning a
+hosted alias, run `npm run smoke:hosted` with `SMOKE_BASE_URL`,
+`SMOKE_EXPECT_ENV`, and `SMOKE_EXPECT_REGION`.
+
 CI runs `npm run verify` and `npm run build` on pull requests.
 
 ## API Surface
@@ -78,9 +83,12 @@ CI runs `npm run verify` and `npm run build` on pull requests.
 - `GET /api/v1/capabilities`
 - `POST /api/v1/files/create-upload`
 - `POST /api/v1/jobs`
+- `GET|POST|PUT /api/inngest`
 
-Starter capabilities are `example.echo` on provider `echo` and
-`example.file_transform` on provider `example-transform`.
+All `/api/v1/*` routes require a signed-in Clerk user. Starter capabilities are
+`example.echo` on provider `echo` and `example.file_transform` on provider
+`example-transform`; the file transform capability supports async dispatch
+through Inngest.
 
 ## Linear/Symphony Control
 
@@ -102,6 +110,7 @@ Start here:
 
 - [New Project Guide](docs/new-project-guide.md)
 - [Environment Runbook](docs/environment-runbook.md)
+- [Deployment Runbook](docs/deployment-runbook.md)
 - [Release Playbook](docs/release-playbook.md)
 - [Capability Authoring Playbook](docs/tool-authoring-playbook.md)
 - [Provider Authoring Playbook](docs/provider-authoring-playbook.md)

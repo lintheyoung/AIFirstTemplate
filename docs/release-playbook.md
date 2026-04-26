@@ -4,75 +4,81 @@ Release only after the code, environment contract, and hosted smoke all agree
 about the target environment. This starter expects feature work to promote to
 `staging` for test, then to `main` for prod.
 
-## Current Starter Limits
+## Current Starter Auth And Jobs
 
-The starter intentionally ships with demo actor resolution. API routes call
-`requireDemoActor()`, so Clerk packages and env variables are present but real
-Clerk-backed actor lookup is not implemented yet. Wiring Clerk session/API-key
-resolution into the platform actor model is a pre-production adoption task.
+All `/api/v1/*` routes require Clerk authentication. Route handlers call
+`requireClerkActor()`, which maps the signed-in Clerk user into the template
+`PlatformActor` shape. The starter keeps workspace membership simple with a
+single workspace ID so projects can replace that resolver with database-backed
+membership lookup when they adopt real teams, orgs, or API keys.
 
-Jobs also run inline today. `POST /api/v1/jobs` calls `runJobInline()` and does
-not emit `job.created` through `lib/queue`. `lib/queue/adapter.ts` and
-`lib/queue/inngest.ts` mark the boundary for future async execution; queue smoke
-is required only after background execution is wired.
+Jobs support both execution modes. `sync` calls `runJobInline()` for immediate
+provider execution. `async` creates a queued job envelope, emits `job.created`
+through `lib/queue/inngest.ts`, and exposes functions through
+`app/api/inngest/route.ts` for Inngest sync.
 
 ## Test Promotion
 
 1. Merge the feature branch to `staging`.
-2. Deploy the hosted test app for `NEXT_PUBLIC_APP_URL=https://test.example.com`.
-3. Run `npm run check:env-contract -- .env.test.example` or the real test env
-   file with `--expect-env test`.
+2. Deploy the hosted test app for `NEXT_PUBLIC_APP_URL=https://test.app.pest.gg`.
+3. Run `npm run deploy:preflight -- --env-file .env.test.local --expect-env test`
+   or the equivalent real test env file.
 4. Run `npm test`.
 5. Run `npm run typecheck`.
 6. Run `npm run lint`.
 7. Run `npm run build`.
 8. Smoke the hosted test API:
-   - `GET /api/v1/me`
-   - `GET /api/v1/capabilities`
-   - `POST /api/v1/files/create-upload`
-   - `POST /api/v1/jobs` with `example.echo` and provider `echo`
+   - Unauthenticated `GET /api/v1/me` returns `AUTH_UNAUTHORIZED`
+   - Authenticated `GET /api/v1/me`
+   - Authenticated `GET /api/v1/capabilities`
+   - Authenticated `POST /api/v1/files/create-upload`
+   - Authenticated `POST /api/v1/jobs` with `example.echo` and provider `echo`
    - `POST /api/v1/jobs` with `example.file_transform` and provider
      `example-transform`
-9. Confirm writes land only in staging database and storage resources.
-10. If real auth has been adopted, confirm Clerk uses the staging application.
-11. If background jobs have been adopted, confirm queue events use staging
+9. Sync or refresh the Inngest test app against `/api/inngest`.
+10. Run hosted smoke with `SMOKE_BASE_URL=https://test.app.pest.gg`,
+    `SMOKE_EXPECT_ENV=test`, and `SMOKE_EXPECT_REGION=sin1`.
+11. Confirm writes land only in staging database and storage resources.
+12. Confirm Clerk uses the staging application and Inngest events use staging
     resources.
 
 ## Production Promotion
 
 1. Merge the approved `staging` commit to `main`.
-2. Deploy production for `NEXT_PUBLIC_APP_URL=https://example.com`.
-3. Run `npm run check:env-contract -- .env.production.example` or the real prod
-   env file with `--expect-env prod`.
+2. Deploy production for `NEXT_PUBLIC_APP_URL=https://app.pest.gg`.
+3. Run `npm run deploy:preflight -- --env-file .env.production.local --expect-env prod`
+   or the equivalent real prod env file.
 4. Re-run `npm test`, `npm run typecheck`, `npm run lint`, and
    `npm run build` on the release commit.
 5. Smoke production with low-risk data:
-   - `GET /api/v1/me`
-   - `GET /api/v1/capabilities`
-   - `POST /api/v1/jobs` with `example.echo` and provider `echo`
+   - Unauthenticated `GET /api/v1/me` returns `AUTH_UNAUTHORIZED`
+   - Authenticated `GET /api/v1/me`
+   - Authenticated `GET /api/v1/capabilities`
+   - Authenticated `POST /api/v1/jobs` with `example.echo` and provider `echo`
    - `POST /api/v1/jobs` with `example.file_transform` and provider
      `example-transform`
-6. Confirm production writes land only in production database and storage
+6. Sync or refresh the Inngest production app against `/api/inngest`.
+7. Run hosted smoke with `SMOKE_BASE_URL=https://app.pest.gg`,
+   `SMOKE_EXPECT_ENV=prod`, and `SMOKE_EXPECT_REGION=sin1`.
+8. Confirm production writes land only in production database and storage
    resources.
-7. If real auth has been adopted, confirm Clerk uses the production
-   application.
-8. If background jobs have been adopted, confirm queue events use production
-   resources.
+9. Confirm Clerk uses the production application and Inngest events use
+   production resources.
 
 ## Release Stop Conditions
 
 Stop the release when any stop condition is present:
 
 - Environment contract check fails or reports the wrong `APP_ENV`.
+- Deploy preflight fails or `vercel.json` no longer pins `regions: ["sin1"]`.
+- Hosted smoke does not show the expected `x-vercel-id` region.
 - Test points at production resources, or prod points at staging/test/dev
   resources.
 - Database migrations or schema checks fail.
-- Demo actor smoke through `GET /api/v1/me` does not return the expected actor
-  shape.
-- Real Clerk-backed actor lookup is needed for adoption but has not been wired
-  before production traffic.
-- Background job execution is enabled but queue registration is stale or
-  `job.created` cannot be emitted.
+- Clerk actor smoke through authenticated `GET /api/v1/me` does not return the
+  expected actor shape.
+- Unauthenticated `/api/v1/*` access does not return `AUTH_UNAUTHORIZED`.
+- Inngest sync is stale or `job.created` cannot be emitted.
 - R2 upload intent creation returns a bucket or public base URL for the wrong
   environment.
 - `POST /api/v1/jobs` cannot run `example.echo` through provider `echo`.

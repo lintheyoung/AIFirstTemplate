@@ -12,7 +12,10 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "check:env-contract": "tsx scripts/check-env-contract.ts",
+    "deploy:preflight": "tsx scripts/deploy-preflight.ts",
     "smoke:local": "tsx scripts/smoke-local.ts",
+    "smoke:hosted": "tsx scripts/smoke-hosted.ts",
+    "verify:deployment": "npm run deploy:preflight && npm run smoke:hosted",
     "verify": "npm run typecheck && npm run lint && npm test && npm run check:env-contract -- .env.test.example"
   },
   "dependencies": {

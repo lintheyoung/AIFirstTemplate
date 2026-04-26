@@ -8,3 +8,5 @@ coverage
 dist
 tsconfig.tsbuildinfo
 symphony/generated
+.wrangler
+.vercel

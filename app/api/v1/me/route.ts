@@ -1,4 +1,4 @@
-import { requireDemoActor } from '@/lib/auth/demo-actor';
+import { requireClerkActor } from '@/lib/auth/clerk-actor';
 import {
   errorResponse,
   resolveRequestId,
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const requestId = resolveRequestId(request.headers.get('x-request-id'));
 
   try {
-    const actor = requireDemoActor();
+    const actor = await requireClerkActor();
 
     return successResponse(
       {

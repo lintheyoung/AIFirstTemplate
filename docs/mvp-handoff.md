@@ -7,12 +7,14 @@
 - Typed env validation and env contract check.
 - Request envelopes and API errors.
 - Core database schema.
-- Actor and API key foundations.
+- Clerk-backed actor foundation.
+- API key foundations.
 - File storage adapter boundary.
 - Job state machine.
 - Provider adapter boundary.
+- Inngest queue adapter and `/api/inngest` sync endpoint.
 - Example capabilities.
-- Machine-facing `/api/v1` routes.
+- Clerk-protected machine-facing `/api/v1` routes.
 - Minimal dashboard shell.
 - Operating docs.
 - Local smoke script.
@@ -28,7 +30,8 @@
 
 ## Next
 
-- Replace demo actor with real Clerk/API-key auth in route integration.
+- Replace the starter single-workspace Clerk resolver with database-backed
+  workspace membership and optional API-key actors.
 - Add database-backed repositories for files and jobs.
 - Add migrations and seed command.
-- Connect the queue adapter to real Inngest functions.
+- Persist async job status transitions from Inngest runs.

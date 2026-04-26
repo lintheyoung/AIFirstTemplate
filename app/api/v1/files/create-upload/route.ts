@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { requireDemoActor } from '@/lib/auth/demo-actor';
+import { requireClerkActor } from '@/lib/auth/clerk-actor';
 import { createUploadIntent } from '@/lib/files/service';
 import { ApiError } from '@/lib/request/errors';
 import { parseJsonBody } from '@/lib/request/json';
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const requestId = resolveRequestId(request.headers.get('x-request-id'));
 
   try {
-    const actor = requireDemoActor();
+    const actor = await requireClerkActor();
     const body = createUploadSchema.parse(await parseJsonBody(request));
     const upload = await createUploadIntent({
       actor,

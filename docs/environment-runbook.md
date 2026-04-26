@@ -10,8 +10,8 @@ not as labels on the same resources. The contract is enforced by
 | Environment | Branch | URL Default | Required Resources |
 | --- | --- | --- | --- |
 | `dev` | `feature/*` or any non-release branch | `http://localhost:3024` | local or disposable services |
-| `test` | `staging` | `https://test.example.com` | staging Clerk, database, R2 bucket, queue |
-| `prod` | `main` | `https://example.com` | production Clerk, database, R2 bucket, queue |
+| `test` | `staging` | `https://test.app.pest.gg` | staging Clerk, database, R2 bucket, queue |
+| `prod` | `main` | `https://app.pest.gg` | production Clerk, database, R2 bucket, queue |
 
 The starter defaults are defined in `config/platform.ts` and
 `config/project.ts`. `branchToEnvironment()` maps `staging` to `test`, `main`
@@ -33,10 +33,13 @@ Every environment must provide:
 - `R2_PUBLIC_BASE_URL`
 - `INNGEST_EVENT_KEY`
 - `INNGEST_SIGNING_KEY`
+- `INNGEST_ENV`
 
 `APP_ENV=test` must use `projectConfig.storageBuckets.test`
-(`aifirst-template-staging` in the template). `APP_ENV=prod` must use
-`projectConfig.storageBuckets.prod` (`aifirst-template-prod` in the template).
+(`pest-gg-app-staging` in this project). `APP_ENV=prod` must use
+`projectConfig.storageBuckets.prod` (`pest-gg-app-prod` in this project).
+`INNGEST_ENV` must be `test` for test and `Production` for prod so Inngest app
+syncs and events land in the intended environment.
 
 ## Contract Checks
 
@@ -58,14 +61,18 @@ npm run check:env-contract -- --expect-env prod .env.production.local
 The command must print JSON with `"status": "ok"` and the expected
 `appEnv`, `appUrl`, and `bucket`.
 
+Before hosted deployment, also run `npm run deploy:preflight` so Vercel region
+and Inngest environment checks are covered.
+
 ## Stop Conditions
 
 Stop the deploy or smoke if any of these are true:
 
 - Test uses a bucket containing `prod` or `production`.
 - Prod uses a bucket containing `staging`, `stage`, `test`, or `dev`.
-- Test does not use `aifirst-template-staging` after `config/project.ts` is applied.
-- Prod does not use `aifirst-template-prod` after `config/project.ts` is applied.
+- Test does not use `pest-gg-app-staging` after `config/project.ts` is applied.
+- Prod does not use `pest-gg-app-prod` after `config/project.ts` is applied.
 - Hosted smoke writes to the wrong database, bucket, queue, or Clerk app.
+- Hosted smoke does not show Vercel `sin1` in `x-vercel-id`.
 
 Fix the environment contract before debugging application behavior.

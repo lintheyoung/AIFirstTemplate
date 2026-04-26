@@ -11,17 +11,18 @@ import {
 
 const baseEnv = {
   APP_ENV: 'test',
-  NEXT_PUBLIC_APP_URL: 'https://test.example.com',
+  NEXT_PUBLIC_APP_URL: 'https://test.app.pest.gg',
   DATABASE_URL: 'postgres://user:pass@example.com:5432/app',
   CLERK_SECRET_KEY: 'sk_test_example',
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_example',
   R2_ACCOUNT_ID: 'account',
   R2_ACCESS_KEY_ID: 'access',
   R2_SECRET_ACCESS_KEY: 'secret',
-  R2_BUCKET_NAME: 'aifirst-template-staging',
-  R2_PUBLIC_BASE_URL: 'https://files-test.example.com',
+  R2_BUCKET_NAME: 'pest-gg-app-staging',
+  R2_PUBLIC_BASE_URL: 'https://files-test.app.pest.gg',
   INNGEST_EVENT_KEY: 'event-key',
   INNGEST_SIGNING_KEY: 'signing-key',
+  INNGEST_ENV: 'test',
 };
 
 const actor: PlatformActor = {
@@ -92,7 +93,7 @@ describe('files service helpers', () => {
         sizeBytes: 1234,
       },
       storage,
-      storageBucket: 'aifirst-template-staging',
+      storageBucket: 'pest-gg-app-staging',
       uuidFactory: () => '12345678-1234-1234-1234-123456789abc',
     });
 
@@ -106,7 +107,7 @@ describe('files service helpers', () => {
       publicUrl: null,
     });
     expect(createUploadUrl).toHaveBeenCalledWith({
-      bucket: 'aifirst-template-staging',
+      bucket: 'pest-gg-app-staging',
       key: 'ws/42/input/file_12345678123412341234123456789abc/Quarterly-Report.pdf',
       mimeType: 'application/pdf',
       sizeBytes: 1234,

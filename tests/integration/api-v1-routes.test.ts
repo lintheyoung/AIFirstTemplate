@@ -5,9 +5,21 @@ import { POST as createUpload } from '../../app/api/v1/files/create-upload/route
 import { POST as createJob } from '../../app/api/v1/jobs/route';
 
 const createUploadIntent = vi.hoisted(() => vi.fn());
+const auth = vi.hoisted(() => vi.fn());
+const emitJobCreated = vi.hoisted(() => vi.fn());
+
+vi.mock('@clerk/nextjs/server', () => ({
+  auth,
+}));
 
 vi.mock('@/lib/files/service', () => ({
   createUploadIntent,
+}));
+
+vi.mock('@/lib/queue/inngest', () => ({
+  inngestQueueAdapter: {
+    emitJobCreated,
+  },
 }));
 
 function request(path: string) {
@@ -20,17 +32,72 @@ function request(path: string) {
 
 describe('/api/v1 routes', () => {
   beforeEach(() => {
+    auth.mockResolvedValue({ userId: 'user_test_123', orgId: null });
     createUploadIntent.mockReset();
+    emitJobCreated.mockReset();
   });
 
-  it('returns a demo actor from /me', async () => {
+  it('requires Clerk authentication for v1 route handlers', async () => {
+    auth.mockResolvedValue({ userId: null, orgId: null });
+
+    const responses = await Promise.all([
+      getMe(request('/api/v1/me')),
+      getCapabilities(request('/api/v1/capabilities')),
+      createUpload(
+        new Request('https://example.test/api/v1/files/create-upload', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-request-id': 'req_test',
+          },
+          body: JSON.stringify({
+            filename: 'notes.txt',
+            mime_type: 'text/plain',
+            size_bytes: 12,
+          }),
+        }),
+      ),
+      createJob(
+        new Request('https://example.test/api/v1/jobs', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-request-id': 'req_test',
+          },
+          body: JSON.stringify({
+            capability_name: 'example.echo',
+            provider_name: 'echo',
+            input: { message: 'hello' },
+          }),
+        }),
+      ),
+    ]);
+
+    for (const response of responses) {
+      const body = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(body).toMatchObject({
+        error: {
+          code: 'AUTH_UNAUTHORIZED',
+          message: 'Authentication is required.',
+        },
+        request_id: 'req_test',
+      });
+    }
+    expect(createUploadIntent).not.toHaveBeenCalled();
+    expect(emitJobCreated).not.toHaveBeenCalled();
+  });
+
+  it('returns the Clerk actor from /me', async () => {
     const response = await getMe(request('/api/v1/me'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body).toMatchObject({
       data: {
-        actor_type: 'api_key',
+        actor_type: 'user',
+        actor_id: 'user_test_123',
         workspace_id: 1,
       },
       request_id: 'req_test',
@@ -94,7 +161,8 @@ describe('/api/v1 routes', () => {
     });
     expect(createUploadIntent).toHaveBeenCalledWith({
       actor: expect.objectContaining({
-        actorType: 'api_key',
+        actorType: 'user',
+        actorId: 'user_test_123',
         workspaceId: 1,
       }),
       input: {
@@ -196,6 +264,57 @@ describe('/api/v1 routes', () => {
     expect(body.data.job.workspaceId).toBeUndefined();
     expect(body.data.job.capabilityName).toBeUndefined();
     expect(body.data.job.providerName).toBeUndefined();
+  });
+
+  it('queues asynchronous jobs through the Inngest adapter', async () => {
+    emitJobCreated.mockResolvedValue(undefined);
+
+    const response = await createJob(
+      new Request('https://example.test/api/v1/jobs', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-request-id': 'req_test',
+        },
+        body: JSON.stringify({
+          capability_name: 'example.file_transform',
+          provider_name: 'example-transform',
+          execution_mode: 'async',
+          input: { input_file_id: 'file_123' },
+        }),
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(202);
+    expect(body).toMatchObject({
+      data: {
+        job: {
+          workspace_id: 1,
+          capability_name: 'example.file_transform',
+          provider_name: 'example-transform',
+          status: 'queued',
+          result: null,
+          error_code: null,
+          error_message: null,
+        },
+      },
+      request_id: 'req_test',
+    });
+    expect(body.data.job.id).toMatch(/^job_[a-f0-9]{32}$/);
+    expect(emitJobCreated).toHaveBeenCalledWith({
+      jobId: body.data.job.id,
+      workspaceId: 1,
+      capabilityName: 'example.file_transform',
+      providerName: 'example-transform',
+      input: { input_file_id: 'file_123' },
+      actor: {
+        actorType: 'user',
+        actorId: 'user_test_123',
+        workspaceId: 1,
+        scopes: ['*'],
+      },
+    });
   });
 
   it('returns validation errors for invalid job bodies', async () => {

@@ -1,3 +1,4 @@
+import { requireClerkActor } from '@/lib/auth/clerk-actor';
 import {
   errorResponse,
   resolveRequestId,
@@ -21,6 +22,8 @@ export async function GET(request: Request) {
   const requestId = resolveRequestId(request.headers.get('x-request-id'));
 
   try {
+    await requireClerkActor();
+
     return successResponse({ capabilities }, requestId);
   } catch (error) {
     return errorResponse(error, requestId);

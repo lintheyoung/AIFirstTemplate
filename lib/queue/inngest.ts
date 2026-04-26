@@ -1,4 +1,5 @@
 import type { JobCreatedEvent, QueueAdapter } from './adapter';
+import { inngest } from '../inngest/client';
 
 type InngestSend = (event: {
   name: 'job.created';
@@ -15,3 +16,7 @@ export function createInngestQueueAdapter(args: { send: InngestSend }): QueueAda
     },
   };
 }
+
+export const inngestQueueAdapter = createInngestQueueAdapter({
+  send: inngest.send.bind(inngest),
+});

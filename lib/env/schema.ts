@@ -14,6 +14,7 @@ const appEnvSchema = z.object({
   R2_PUBLIC_BASE_URL: z.string().url(),
   INNGEST_EVENT_KEY: z.string().min(1),
   INNGEST_SIGNING_KEY: z.string().min(1),
+  INNGEST_ENV: z.string().min(1),
 });
 
 export type AppEnv = z.infer<typeof appEnvSchema>;

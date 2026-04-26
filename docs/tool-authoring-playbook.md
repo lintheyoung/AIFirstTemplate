@@ -12,10 +12,10 @@ jobs at `POST /api/v1/jobs`.
 | `example.file_transform` | `example-transform` | `sync`, `async` | File-derived output shape smoke |
 
 The API accepts `capability_name`, `provider_name`, `execution_mode`, and
-`input`. The current starter runs jobs inline through `runJobInline()` in
-`lib/jobs/service.ts`; async mode is part of the API contract and queue
-boundary, but production background execution should be wired through
-`lib/queue/adapter.ts` and `lib/queue/inngest.ts`.
+`input`. `sync` jobs run inline through `runJobInline()` in
+`lib/jobs/service.ts`. `async` jobs create a queued job envelope, emit
+`job.created` through `lib/queue/inngest.ts`, and run from the Inngest endpoint
+at `app/api/inngest/route.ts`.
 
 ## Add A Capability
 
@@ -25,8 +25,10 @@ boundary, but production background execution should be wired through
 4. Validate request input at the route or service boundary before dispatch.
 5. Keep workspace authorization in auth/job services, not inside the provider.
 6. Add or reuse a provider under `lib/providers`.
-7. Add tests for the provider and the route/service path.
-8. Add hosted test smoke evidence before release.
+7. If the capability supports `async`, make sure its provider input is safe to
+   serialize into the `job.created` event payload.
+8. Add tests for the provider and the route/service path.
+9. Add hosted test smoke evidence before release.
 
 ## Boundary Rules
 

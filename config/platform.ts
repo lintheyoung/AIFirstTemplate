@@ -8,11 +8,11 @@ export const platformConfig = {
     },
     test: {
       branch: 'staging',
-      defaultUrl: 'https://test.example.com',
+      defaultUrl: 'https://test.app.pest.gg',
     },
     prod: {
       branch: 'main',
-      defaultUrl: 'https://example.com',
+      defaultUrl: 'https://app.pest.gg',
     },
   },
 } as const;

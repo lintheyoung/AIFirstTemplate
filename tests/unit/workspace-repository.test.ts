@@ -19,6 +19,7 @@ const envKeys = [
   'R2_PUBLIC_BASE_URL',
   'INNGEST_EVENT_KEY',
   'INNGEST_SIGNING_KEY',
+  'INNGEST_ENV',
 ] as const;
 
 describe('workspace repository helpers', () => {

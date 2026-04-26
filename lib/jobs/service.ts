@@ -2,6 +2,7 @@ import type { PlatformActor } from '../auth/actors';
 import { echoProvider } from '../providers/echo';
 import { exampleTransformProvider } from '../providers/example-transform';
 import type { ProviderAdapter } from '../providers/types';
+import type { JobCreatedEvent } from '../queue/adapter';
 import { ApiError } from '../request/errors';
 
 const providers: Record<string, ProviderAdapter> = {
@@ -27,24 +28,59 @@ export function resolveProvider(providerName: string) {
   return provider;
 }
 
-export async function runJobInline(args: {
+type JobEnvelope = {
+  id: string;
+  workspaceId: number;
+  capabilityName: string;
+  providerName: string;
+  status: 'queued' | 'succeeded' | 'failed';
+  result: Record<string, unknown> | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+};
+
+type JobRunArgs = {
+  jobId: string;
+  workspaceId: number;
+  capabilityName: string;
+  providerName: string;
+  input: Record<string, unknown>;
+};
+
+export function createQueuedJob(args: {
   actor: PlatformActor;
   capabilityName: string;
   providerName: string;
   input: Record<string, unknown>;
-}) {
-  const jobId = createJobId();
+  uuidFactory?: () => string;
+}): JobEnvelope {
+  const jobId = createJobId(args.uuidFactory);
+  const provider = resolveProvider(args.providerName);
+
+  return {
+    id: jobId,
+    workspaceId: args.actor.workspaceId,
+    capabilityName: args.capabilityName,
+    providerName: provider.name,
+    status: 'queued',
+    result: null,
+    errorCode: null,
+    errorMessage: null,
+  };
+}
+
+export async function runProviderJob(args: JobRunArgs): Promise<JobEnvelope> {
   const provider = resolveProvider(args.providerName);
   const result = await provider.run({
-    jobId,
-    workspaceId: args.actor.workspaceId,
+    jobId: args.jobId,
+    workspaceId: args.workspaceId,
     capabilityName: args.capabilityName,
     input: args.input,
   });
 
   return {
-    id: jobId,
-    workspaceId: args.actor.workspaceId,
+    id: args.jobId,
+    workspaceId: args.workspaceId,
     capabilityName: args.capabilityName,
     providerName: provider.name,
     status: result.status === 'completed' ? 'succeeded' : 'failed',
@@ -52,4 +88,31 @@ export async function runJobInline(args: {
     errorCode: result.status === 'failed' ? result.errorCode : null,
     errorMessage: result.status === 'failed' ? result.errorMessage : null,
   };
+}
+
+export async function runJobInline(args: {
+  actor: PlatformActor;
+  capabilityName: string;
+  providerName: string;
+  input: Record<string, unknown>;
+}) {
+  const jobId = createJobId();
+
+  return runProviderJob({
+    jobId,
+    workspaceId: args.actor.workspaceId,
+    capabilityName: args.capabilityName,
+    providerName: args.providerName,
+    input: args.input,
+  });
+}
+
+export async function runJobFromEvent(event: JobCreatedEvent) {
+  return runProviderJob({
+    jobId: event.jobId,
+    workspaceId: event.workspaceId,
+    capabilityName: event.capabilityName,
+    providerName: event.providerName,
+    input: event.input,
+  });
 }

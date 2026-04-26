@@ -10,6 +10,14 @@ describe('queue adapter', () => {
       jobId: 'job_123',
       workspaceId: 7,
       capabilityName: 'example.echo',
+      providerName: 'echo',
+      input: { message: 'hello' },
+      actor: {
+        actorType: 'user',
+        actorId: 'user_test_123',
+        workspaceId: 7,
+        scopes: ['*'],
+      },
     });
 
     expect(send).toHaveBeenCalledWith({
@@ -18,6 +26,14 @@ describe('queue adapter', () => {
         jobId: 'job_123',
         workspaceId: 7,
         capabilityName: 'example.echo',
+        providerName: 'echo',
+        input: { message: 'hello' },
+        actor: {
+          actorType: 'user',
+          actorId: 'user_test_123',
+          workspaceId: 7,
+          scopes: ['*'],
+        },
       },
     });
   });

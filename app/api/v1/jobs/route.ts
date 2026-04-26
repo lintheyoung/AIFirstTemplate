@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { requireDemoActor } from '@/lib/auth/demo-actor';
-import { runJobInline } from '@/lib/jobs/service';
+import { requireClerkActor } from '@/lib/auth/clerk-actor';
+import { createQueuedJob, runJobInline } from '@/lib/jobs/service';
+import { inngestQueueAdapter } from '@/lib/queue/inngest';
 import { ApiError } from '@/lib/request/errors';
 import { parseJsonBody } from '@/lib/request/json';
 import {
@@ -20,8 +21,44 @@ export async function POST(request: Request) {
   const requestId = resolveRequestId(request.headers.get('x-request-id'));
 
   try {
-    const actor = requireDemoActor();
+    const actor = await requireClerkActor();
     const body = createJobSchema.parse(await parseJsonBody(request));
+
+    if (body.execution_mode === 'async') {
+      const job = createQueuedJob({
+        actor,
+        capabilityName: body.capability_name,
+        providerName: body.provider_name,
+        input: body.input,
+      });
+
+      await inngestQueueAdapter.emitJobCreated({
+        jobId: job.id,
+        workspaceId: job.workspaceId,
+        capabilityName: job.capabilityName,
+        providerName: job.providerName,
+        input: body.input,
+        actor,
+      });
+
+      return successResponse(
+        {
+          job: {
+            id: job.id,
+            workspace_id: job.workspaceId,
+            capability_name: job.capabilityName,
+            provider_name: job.providerName,
+            status: job.status,
+            result: job.result,
+            error_code: job.errorCode,
+            error_message: job.errorMessage,
+          },
+        },
+        requestId,
+        { status: 202 },
+      );
+    }
+
     const job = await runJobInline({
       actor,
       capabilityName: body.capability_name,
