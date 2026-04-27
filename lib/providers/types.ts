@@ -17,7 +17,15 @@ export type ProviderFailedResult = {
   errorMessage: string;
 };
 
-export type ProviderResult = ProviderCompletedResult | ProviderFailedResult;
+export type ProviderSubmittedResult = {
+  status: 'submitted';
+  providerTaskId: string;
+};
+
+export type ProviderResult =
+  | ProviderCompletedResult
+  | ProviderFailedResult
+  | ProviderSubmittedResult;
 
 export type ProviderAdapter = {
   name: string;

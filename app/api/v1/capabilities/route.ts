@@ -16,6 +16,11 @@ const capabilities = [
     provider: 'example-transform',
     execution_modes: ['sync', 'async'],
   },
+  {
+    name: 'image.edit',
+    provider: 'kie-ai',
+    execution_modes: ['async'],
+  },
 ] as const;
 
 export async function GET(request: Request) {

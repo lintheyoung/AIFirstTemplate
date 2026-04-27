@@ -17,6 +17,8 @@ const createJobSchema = z.object({
   input: z.record(z.string(), z.unknown()),
 });
 
+const asyncOnlyProviderCapabilities = new Set(['image.edit:kie-ai']);
+
 export async function POST(request: Request) {
   const requestId = resolveRequestId(request.headers.get('x-request-id'));
 
@@ -24,8 +26,19 @@ export async function POST(request: Request) {
     const actor = await requireClerkActor();
     const body = createJobSchema.parse(await parseJsonBody(request));
 
+    if (
+      body.execution_mode === 'sync' &&
+      asyncOnlyProviderCapabilities.has(`${body.capability_name}:${body.provider_name}`)
+    ) {
+      throw new ApiError({
+        code: 'JOB_INVALID_STATE',
+        message: `Provider '${body.provider_name}' for capability '${body.capability_name}' only supports async execution.`,
+        status: 400,
+      });
+    }
+
     if (body.execution_mode === 'async') {
-      const job = createQueuedJob({
+      const job = await createQueuedJob({
         actor,
         capabilityName: body.capability_name,
         providerName: body.provider_name,

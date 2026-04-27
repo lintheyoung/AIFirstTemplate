@@ -35,6 +35,8 @@ through `lib/queue/inngest.ts`, and exposes functions through
    - Authenticated `POST /api/v1/jobs` with `example.echo` and provider `echo`
    - `POST /api/v1/jobs` with `example.file_transform` and provider
      `example-transform`
+   - Async `POST /api/v1/jobs` with `image.edit` and provider `kie-ai`,
+     followed by `GET /api/v1/jobs/:jobId`
 9. Sync or refresh the Inngest test app against `/api/inngest`.
 10. Run hosted smoke with `SMOKE_BASE_URL=https://test.app.pest.gg`,
     `SMOKE_EXPECT_ENV=test`, and `SMOKE_EXPECT_REGION=sin1`.
@@ -57,6 +59,8 @@ through `lib/queue/inngest.ts`, and exposes functions through
    - Authenticated `POST /api/v1/jobs` with `example.echo` and provider `echo`
    - `POST /api/v1/jobs` with `example.file_transform` and provider
      `example-transform`
+   - Async `POST /api/v1/jobs` with `image.edit` and provider `kie-ai`,
+     followed by `GET /api/v1/jobs/:jobId`
 6. Sync or refresh the Inngest production app against `/api/inngest`.
 7. Run hosted smoke with `SMOKE_BASE_URL=https://app.pest.gg`,
    `SMOKE_EXPECT_ENV=prod`, and `SMOKE_EXPECT_REGION=sin1`.
@@ -84,6 +88,8 @@ Stop the release when any stop condition is present:
 - `POST /api/v1/jobs` cannot run `example.echo` through provider `echo`.
 - `POST /api/v1/jobs` cannot run `example.file_transform` through provider
   `example-transform`.
+- `POST /api/v1/jobs` cannot create an async `image.edit` job through provider
+  `kie-ai`.
 - Any required verification command exits non-zero.
 
 Do not promote frontend clients, SDKs, or external automation before the

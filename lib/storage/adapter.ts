@@ -11,11 +11,19 @@ export type CreateDownloadUrlArgs = {
   responseContentType?: string;
 };
 
+export type PutObjectArgs = {
+  bucket: string;
+  key: string;
+  body: Uint8Array;
+  mimeType: string;
+};
+
 export type StorageAdapter = {
   createUploadUrl(args: CreateUploadUrlArgs): Promise<{
     url: string;
     headers: Record<string, string>;
   }>;
   createDownloadUrl(args: CreateDownloadUrlArgs): Promise<string>;
-  publicUrl(args: { key: string | null }): string | null;
+  putObject(args: PutObjectArgs): Promise<void>;
+  publicUrl(args: { key: string }): string | null;
 };
