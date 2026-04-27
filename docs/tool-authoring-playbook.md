@@ -10,6 +10,7 @@ jobs at `POST /api/v1/jobs`.
 | --- | --- | --- | --- |
 | `example.echo` | `echo` | `sync` | JSON-only request/response smoke |
 | `example.file_transform` | `example-transform` | `sync`, `async` | File-derived output shape smoke |
+| `image.edit` | `kie-ai` | `async` | Uploaded source image edited through Flux Kontext |
 
 The API accepts `capability_name`, `provider_name`, `execution_mode`, and
 `input`. `sync` jobs run inline through `runJobInline()` in

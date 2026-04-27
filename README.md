@@ -28,10 +28,16 @@ control plane and an optional Linear/Symphony automation loop from day one.
 ```bash
 npm install
 cp .env.example .env.local
+npm run check:env-contract -- .env.example
 npm run dev
 ```
 
 Open `http://localhost:3024`.
+
+For a full clone-to-deploy checklist, read
+[Template Setup Guide](docs/template-setup-guide.md). For a product-level view
+of what the backend already supports, read
+[App Backend Capabilities](docs/app-backend-capabilities.md).
 
 ## Required Credentials
 
@@ -52,6 +58,9 @@ projects, databases, buckets, and keys for `test` and `prod` before deploying.
 | `INNGEST_EVENT_KEY` | [Inngest Dashboard](https://app.inngest.com/) -> environment -> **Manage** -> **Event Keys** | Used to send events. Inngest docs: [Creating an Event Key](https://www.inngest.com/docs/events/creating-an-event-key). |
 | `INNGEST_SIGNING_KEY` | [Inngest Dashboard](https://app.inngest.com/) -> environment -> **Signing Key** | Used to verify Inngest requests. Inngest docs: [Signing keys](https://www.inngest.com/docs/platform/signing-keys). |
 | `INNGEST_ENV` | Your Inngest environment name | Keeps function sync and events grouped under the intended Inngest environment, for example `test` or `Production`. |
+| `KIE_API_KEY` | kie.ai API key management | Required for the `kie-ai` image provider. |
+| `KIE_CALLBACK_BASE_URL` | Hosted app URL for the target environment | Base URL used to build `/api/webhooks/kie/flux-kontext`. |
+| `KIE_WEBHOOK_HMAC_KEY` | kie.ai webhook settings | Shared secret used to verify Flux Kontext callbacks. |
 
 After filling an env file, run:
 
@@ -77,18 +86,31 @@ hosted alias, run `npm run smoke:hosted` with `SMOKE_BASE_URL`,
 
 CI runs `npm run verify` and `npm run build` on pull requests.
 
+## Database Migrations
+
+SQL migrations live in [migrations/](migrations/). Apply them manually until the
+repo adds a migration runner; migration files are written to be safe on existing
+Postgres databases where possible.
+
 ## API Surface
 
 - `GET /api/v1/me`
 - `GET /api/v1/capabilities`
 - `POST /api/v1/files/create-upload`
+- `POST /api/v1/files/:fileId/complete`
 - `POST /api/v1/jobs`
+- `GET /api/v1/jobs/:jobId`
+- `POST /api/webhooks/kie/flux-kontext`
 - `GET|POST|PUT /api/inngest`
 
 All `/api/v1/*` routes require a signed-in Clerk user. Starter capabilities are
 `example.echo` on provider `echo` and `example.file_transform` on provider
 `example-transform`; the file transform capability supports async dispatch
 through Inngest.
+
+The `image.edit` capability uses provider `kie-ai` and runs asynchronously. App
+clients upload a source image, complete the upload, create an async job with
+`source_file_id` and `prompt`, then poll `GET /api/v1/jobs/:jobId`.
 
 ## Linear/Symphony Control
 
@@ -108,10 +130,13 @@ Start here:
 
 ## Read Next
 
+- [Template Setup Guide](docs/template-setup-guide.md)
+- [App Backend Capabilities](docs/app-backend-capabilities.md)
 - [New Project Guide](docs/new-project-guide.md)
 - [Environment Runbook](docs/environment-runbook.md)
 - [Deployment Runbook](docs/deployment-runbook.md)
 - [Release Playbook](docs/release-playbook.md)
+- [API Authoring Playbook](docs/api-authoring-playbook.md)
 - [Capability Authoring Playbook](docs/tool-authoring-playbook.md)
 - [Provider Authoring Playbook](docs/provider-authoring-playbook.md)
 

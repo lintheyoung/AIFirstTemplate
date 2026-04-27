@@ -10,11 +10,43 @@ const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const requiredDocs = [
   {
     path: 'README.md',
-    requiredTerms: ['docs/release-playbook.md', 'npm run check:env-contract', 'example.echo'],
+    requiredTerms: [
+      'docs/release-playbook.md',
+      'npm run check:env-contract',
+      'example.echo',
+      'image.edit',
+      'kie-ai',
+      'KIE_API_KEY',
+    ],
   },
   {
     path: 'docs/new-project-guide.md',
     requiredTerms: ['config/project.ts', '.env.example', 'dev', 'test', 'prod'],
+  },
+  {
+    path: 'docs/template-setup-guide.md',
+    requiredTerms: [
+      '.env.local',
+      '.env.test.local',
+      '.env.production.local',
+      'KIE_API_KEY',
+      'KIE_WEBHOOK_HMAC_KEY',
+      'npm run deploy:preflight',
+      'npm run smoke:hosted',
+      'symphony/README.md',
+    ],
+  },
+  {
+    path: 'docs/app-backend-capabilities.md',
+    requiredTerms: [
+      'requireClerkActor()',
+      '/api/v1/jobs',
+      'image.edit',
+      'kie-ai',
+      'Inngest',
+      'R2',
+      'docs/api-authoring-playbook.md',
+    ],
   },
   {
     path: 'docs/environment-runbook.md',
@@ -48,15 +80,49 @@ const requiredDocs = [
       'runJobInline()',
       'app/api/inngest/route.ts',
       'job.created',
+      'image.edit',
+      'kie-ai',
+      'async',
     ],
   },
   {
     path: 'docs/tool-authoring-playbook.md',
-    requiredTerms: ['/api/v1/capabilities', '/api/v1/jobs', 'example.echo', 'example.file_transform'],
+    requiredTerms: [
+      '/api/v1/capabilities',
+      '/api/v1/jobs',
+      'example.echo',
+      'example.file_transform',
+      'image.edit',
+      'kie-ai',
+      'async',
+    ],
+  },
+  {
+    path: 'docs/api-authoring-playbook.md',
+    requiredTerms: [
+      'app/api/v1',
+      'requireClerkActor()',
+      'successResponse',
+      'errorResponse',
+      'ApiError',
+      'tests/integration/api-v1-routes.test.ts',
+      'npm run smoke:local',
+      'docs/tool-authoring-playbook.md',
+      'docs/provider-authoring-playbook.md',
+      '/api/v1/jobs/:jobId',
+      '/api/webhooks/kie/flux-kontext',
+    ],
   },
   {
     path: 'docs/provider-authoring-playbook.md',
-    requiredTerms: ['lib/providers/types.ts', 'echo', 'example-transform'],
+    requiredTerms: [
+      'lib/providers/types.ts',
+      'echo',
+      'example-transform',
+      'kie-ai',
+      'Flux Kontext',
+      'KIE_WEBHOOK_HMAC_KEY',
+    ],
   },
 ] as const;
 
@@ -149,7 +215,7 @@ describe('required docs', () => {
     const releaseDoc = readProjectFile('docs/release-playbook.md');
     const capabilities = parseCapabilitiesFromRoute();
 
-    expect(capabilities).toHaveLength(2);
+    expect(capabilities).toHaveLength(3);
 
     for (const capability of capabilities) {
       expect(capabilitiesDoc).toContain(capability.name);

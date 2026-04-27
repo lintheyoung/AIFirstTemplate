@@ -139,6 +139,9 @@ export const jobs = pgTable(
     capabilityName: varchar('capability_name', { length: 128 }).notNull(),
     providerName: varchar('provider_name', { length: 64 }).notNull(),
     status: varchar('status', { length: 32 }).$type<JobStatusValue>().notNull().default('queued'),
+    sourceFileId: varchar('source_file_id', { length: 64 }).references(() => files.id),
+    resultFileId: varchar('result_file_id', { length: 64 }).references(() => files.id),
+    providerTaskId: varchar('provider_task_id', { length: 255 }),
     inputJson: text('input_json').notNull().default('{}'),
     resultJson: text('result_json'),
     errorCode: varchar('error_code', { length: 64 }),
@@ -152,6 +155,10 @@ export const jobs = pgTable(
   },
   (table) => ({
     workspaceStatusIdx: index('jobs_workspace_status_idx').on(table.workspaceId, table.status),
+    providerTaskIdx: index('jobs_provider_task_idx').on(
+      table.providerName,
+      table.providerTaskId,
+    ),
     idempotencyIdx: uniqueIndex('jobs_workspace_idempotency_idx').on(
       table.workspaceId,
       table.idempotencyKey,

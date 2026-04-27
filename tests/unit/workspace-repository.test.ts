@@ -20,6 +20,9 @@ const envKeys = [
   'INNGEST_EVENT_KEY',
   'INNGEST_SIGNING_KEY',
   'INNGEST_ENV',
+  'KIE_API_KEY',
+  'KIE_CALLBACK_BASE_URL',
+  'KIE_WEBHOOK_HMAC_KEY',
 ] as const;
 
 describe('workspace repository helpers', () => {

@@ -4,9 +4,16 @@ Describe the backend template change in one or two sentences.
 
 ## Scope
 
+- Change type: API route / Capability / Provider / Auth / Storage / Queue / UI / Docs
 - Target area:
+- Endpoint or capability name:
+- Auth requirement:
 - Expected behavior:
+- Request shape:
+- Response shape:
 - Files or modules likely involved:
+- Files expected to touch:
+- Non-goals:
 
 ## Acceptance Criteria
 
@@ -16,6 +23,9 @@ Describe the backend template change in one or two sentences.
 - [ ] `npm run verify` passes when the change touches runtime code.
 - [ ] `npm run build` passes when the change touches Next.js app/routes.
 - [ ] `npm run smoke:local` passes when the change touches `/api/v1` routes.
+- [ ] API route changes follow `docs/api-authoring-playbook.md`.
+- [ ] Capability changes follow `docs/tool-authoring-playbook.md`.
+- [ ] Provider changes follow `docs/provider-authoring-playbook.md`.
 
 ## Notes
 

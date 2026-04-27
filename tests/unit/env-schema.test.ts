@@ -15,6 +15,9 @@ const baseEnv = {
   INNGEST_EVENT_KEY: 'event-key',
   INNGEST_SIGNING_KEY: 'signing-key',
   INNGEST_ENV: 'test',
+  KIE_API_KEY: 'kie_test_key',
+  KIE_CALLBACK_BASE_URL: 'https://example.test',
+  KIE_WEBHOOK_HMAC_KEY: 'kie_hmac_key',
 };
 
 describe('parseAppEnv', () => {
@@ -24,6 +27,9 @@ describe('parseAppEnv', () => {
       NEXT_PUBLIC_APP_URL: 'https://test.app.pest.gg',
       R2_BUCKET_NAME: 'pest-gg-app-staging',
       INNGEST_ENV: 'test',
+      KIE_API_KEY: 'kie_test_key',
+      KIE_CALLBACK_BASE_URL: 'https://example.test',
+      KIE_WEBHOOK_HMAC_KEY: 'kie_hmac_key',
     });
   });
 

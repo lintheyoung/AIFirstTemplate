@@ -34,12 +34,20 @@ Every environment must provide:
 - `INNGEST_EVENT_KEY`
 - `INNGEST_SIGNING_KEY`
 - `INNGEST_ENV`
+- `KIE_API_KEY`
+- `KIE_CALLBACK_BASE_URL`
+- `KIE_WEBHOOK_HMAC_KEY`
 
 `APP_ENV=test` must use `projectConfig.storageBuckets.test`
 (`pest-gg-app-staging` in this project). `APP_ENV=prod` must use
 `projectConfig.storageBuckets.prod` (`pest-gg-app-prod` in this project).
 `INNGEST_ENV` must be `test` for test and `Production` for prod so Inngest app
 syncs and events land in the intended environment.
+
+For the `kie-ai` image provider, set `KIE_CALLBACK_BASE_URL` to the hosted app
+origin for the same environment, for example `https://test.app.pest.gg` or
+`https://app.pest.gg`. `KIE_API_KEY` and `KIE_WEBHOOK_HMAC_KEY` must come from
+the matching kie.ai environment or account settings.
 
 ## Contract Checks
 

@@ -41,11 +41,18 @@ export const r2StorageAdapter: StorageAdapter = {
     return getSignedUrl(createClient(), command, { expiresIn: 900 });
   },
 
-  publicUrl(args) {
-    if (!args.key) {
-      return null;
-    }
+  async putObject(args) {
+    const command = new PutObjectCommand({
+      Bucket: args.bucket,
+      Key: args.key,
+      Body: args.body,
+      ContentType: args.mimeType,
+    });
 
+    await createClient().send(command);
+  },
+
+  publicUrl(args) {
     const url = new URL(env.R2_PUBLIC_BASE_URL);
     const basePath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
     const keyPath = args.key

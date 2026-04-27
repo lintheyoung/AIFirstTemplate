@@ -25,7 +25,6 @@ elif [[ -f "$PROFILE_EXAMPLE" ]]; then
 fi
 
 required_vars=(
-  SYMPHONY_ELIXIR_ROOT
   LINEAR_API_KEY
   LINEAR_PROJECT_SLUG
   PROJECT_NAME
@@ -46,13 +45,25 @@ for name in "${required_vars[@]}"; do
   fi
 done
 
-if [[ ! -d "$SYMPHONY_ELIXIR_ROOT" ]]; then
-  echo "SYMPHONY_ELIXIR_ROOT does not exist: $SYMPHONY_ELIXIR_ROOT" >&2
-  echo "Clone or install the external Symphony Elixir runtime, then set SYMPHONY_ELIXIR_ROOT to its elixir directory." >&2
-  exit 1
+OPENCODE_REVIEW_REQUIRED="${OPENCODE_REVIEW_REQUIRED:-true}"
+OPENCODE_COMMAND="${OPENCODE_COMMAND:-opencode}"
+OPENCODE_REVIEW_TIMEOUT_SECONDS="${OPENCODE_REVIEW_TIMEOUT_SECONDS:-180}"
+SYMPHONY_CONTROL_ROOT="$ROOT_DIR"
+export OPENCODE_REVIEW_REQUIRED OPENCODE_COMMAND OPENCODE_REVIEW_TIMEOUT_SECONDS SYMPHONY_CONTROL_ROOT
+
+if [[ "$OPENCODE_REVIEW_REQUIRED" == "true" ]]; then
+  if ! command -v "$OPENCODE_COMMAND" >/dev/null 2>&1; then
+    echo "OPENCODE_REVIEW_REQUIRED=true but OPENCODE_COMMAND is not available: $OPENCODE_COMMAND" >&2
+    echo "Install opencode or set OPENCODE_COMMAND to the local binary path." >&2
+    exit 1
+  fi
 fi
 
-WORKFLOW_OUTPUT="${WORKFLOW_OUTPUT:-$ROOT_DIR/generated/WORKFLOW.generated.md}"
+SYMPHONY_ELIXIR_ROOT="$("$ROOT_DIR/scripts/bootstrap_runtime.sh")"
+export SYMPHONY_ELIXIR_ROOT
+
+WORKFLOW_SAFE_PROFILE="$(printf '%s' "$PROFILE" | tr -c 'A-Za-z0-9_.-' '-')"
+WORKFLOW_OUTPUT="${WORKFLOW_OUTPUT:-$ROOT_DIR/generated/WORKFLOW.${WORKFLOW_SAFE_PROFILE}.${SERVER_PORT}.generated.md}"
 
 python3 "$ROOT_DIR/scripts/bootstrap_workflow.py" \
   --template "$ROOT_DIR/templates/WORKFLOW.linear.template.md" \

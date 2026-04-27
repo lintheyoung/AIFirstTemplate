@@ -11,6 +11,7 @@ PLACEHOLDERS = {
     "__LINEAR_PROJECT_SLUG__": "LINEAR_PROJECT_SLUG",
     "__TRACKER_LABEL__": "TRACKER_LABEL",
     "__WORKSPACE_ROOT__": "WORKSPACE_ROOT",
+    "__SYMPHONY_CONTROL_ROOT__": "SYMPHONY_CONTROL_ROOT",
     "__TARGET_REPO_NAME__": "TARGET_REPO_NAME",
     "__TARGET_REPO_URL__": "TARGET_REPO_URL",
     "__TARGET_REPO_BASE_BRANCH__": "TARGET_REPO_BASE_BRANCH",
@@ -18,6 +19,22 @@ PLACEHOLDERS = {
     "__MAX_TURNS__": "MAX_TURNS",
     "__CODEX_COMMAND__": "CODEX_COMMAND",
     "__SERVER_PORT__": "SERVER_PORT",
+    "__OPENCODE_COMMAND__": "OPENCODE_COMMAND",
+    "__OPENCODE_REVIEW_REQUIRED__": "OPENCODE_REVIEW_REQUIRED",
+    "__OPENCODE_REVIEW_TIMEOUT_SECONDS__": "OPENCODE_REVIEW_TIMEOUT_SECONDS",
+    "__EXTERNAL_CODE_REVIEW_REQUIRED__": "EXTERNAL_CODE_REVIEW_REQUIRED",
+    "__EXTERNAL_CODE_REVIEW_CHECKS__": "EXTERNAL_CODE_REVIEW_CHECKS",
+    "__HUMAN_APPROVAL_PHRASE__": "HUMAN_APPROVAL_PHRASE",
+}
+
+DEFAULTS = {
+    "OPENCODE_COMMAND": "opencode",
+    "OPENCODE_REVIEW_REQUIRED": "true",
+    "OPENCODE_REVIEW_TIMEOUT_SECONDS": "180",
+    "SYMPHONY_CONTROL_ROOT": "symphony",
+    "EXTERNAL_CODE_REVIEW_REQUIRED": "false",
+    "EXTERNAL_CODE_REVIEW_CHECKS": "",
+    "HUMAN_APPROVAL_PHRASE": "Human Approval: merge approved",
 }
 
 
@@ -57,8 +74,12 @@ def main() -> int:
 
     missing: list[str] = []
     for placeholder, env_name in PLACEHOLDERS.items():
-        value = os.environ.get(env_name)
-        if not value:
+        if env_name in DEFAULTS:
+            value = os.environ.get(env_name, DEFAULTS[env_name])
+        else:
+            value = os.environ.get(env_name)
+
+        if value is None or (not value and env_name not in DEFAULTS):
             missing.append(env_name)
             continue
         text = text.replace(placeholder, value)
