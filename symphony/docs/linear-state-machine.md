@@ -24,6 +24,10 @@ also treated as terminal by the workflow.
 - Symphony runs local opencode review in `Code Review`; findings move to
   `Rework`, unclear decisions move to `Human Review`, and approvals move to
   `Human Review`.
+- API-affecting work must follow `docs/pestgg-api-design-manual.md`. If a PR
+  changes `/api/v1`, capabilities, providers, Inngest jobs, or webhooks without
+  matching that manual, Symphony should move the issue to `Rework` with the
+  mismatch recorded.
 - Blocked work moves to `Human Review` with one Linear blocker comment.
 - Symphony only merges from `Merging` after explicit human approval.
 - Ordinary runners do not perform production promotion unless the issue is a

@@ -37,7 +37,9 @@ Open `http://localhost:3024`.
 For a full clone-to-deploy checklist, read
 [Template Setup Guide](docs/template-setup-guide.md). For a product-level view
 of what the backend already supports, read
-[App Backend Capabilities](docs/app-backend-capabilities.md).
+[App Backend Capabilities](docs/app-backend-capabilities.md). For the
+PestGGApp mobile backend API contract, read
+[PestGGApp API Design Manual](docs/pestgg-api-design-manual.md).
 
 ## Required Credentials
 
@@ -132,6 +134,7 @@ Start here:
 
 - [Template Setup Guide](docs/template-setup-guide.md)
 - [App Backend Capabilities](docs/app-backend-capabilities.md)
+- [PestGGApp API Design Manual](docs/pestgg-api-design-manual.md)
 - [New Project Guide](docs/new-project-guide.md)
 - [Environment Runbook](docs/environment-runbook.md)
 - [Deployment Runbook](docs/deployment-runbook.md)

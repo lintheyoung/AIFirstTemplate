@@ -130,11 +130,19 @@ describe('symphony template control package', () => {
     expect(issueTemplate).toContain('Response shape');
     expect(issueTemplate).toContain('Files expected to touch');
     expect(issueTemplate).toContain('Non-goals');
+    expect(issueTemplate).toContain('API Contract');
+    expect(issueTemplate).toContain('docs/pestgg-api-design-manual.md');
+    expect(issueTemplate).toContain('API category');
+    expect(issueTemplate).toContain('Workspace rule');
+    expect(issueTemplate).toContain('Success status and response fields');
+    expect(issueTemplate).toContain('Async behavior');
+    expect(issueTemplate).toContain('Mobile client impact');
   });
 
   it('instructs Symphony to follow API and provider playbooks', () => {
     const workflow = readProjectFile('symphony/templates/WORKFLOW.linear.template.md');
 
+    expect(workflow).toContain('docs/pestgg-api-design-manual.md');
     expect(workflow).toContain('docs/api-authoring-playbook.md');
     expect(workflow).toContain('docs/tool-authoring-playbook.md');
     expect(workflow).toContain('docs/provider-authoring-playbook.md');
@@ -143,6 +151,26 @@ describe('symphony template control package', () => {
     expect(workflow).toContain('normalized API response envelope');
     expect(workflow).toContain('tests/integration/api-v1-routes.test.ts');
     expect(workflow).toContain('Endpoint or capability');
+    expect(workflow).toContain('API Contract block');
+    expect(workflow).toContain('API JSON fields use `snake_case`');
+    expect(workflow).toContain('Long-running provider work must use jobs and Inngest');
+    expect(workflow).toContain('/api/webhooks/<provider>/<event>');
+    expect(workflow).toContain('Manual reviewed: yes / not applicable');
+    expect(workflow).toContain('Contract impact: method/path/auth/workspace/request/response/errors/async');
+    expect(workflow).toContain('If API-affecting work violates `docs/pestgg-api-design-manual.md`');
+  });
+
+  it('documents the Symphony API design gate for operators and state transitions', () => {
+    const readme = readProjectFile('symphony/README.md');
+    const stateMachine = readProjectFile('symphony/docs/linear-state-machine.md');
+
+    expect(readme).toContain('API Design Gate');
+    expect(readme).toContain('../docs/pestgg-api-design-manual.md');
+    expect(readme).toContain('contract is missing or vague');
+    expect(readme).toContain('conflicts with the API manual');
+    expect(readme).toContain('should go to `Rework`');
+    expect(stateMachine).toContain('API-affecting work must follow `docs/pestgg-api-design-manual.md`');
+    expect(stateMachine).toContain('changes `/api/v1`, capabilities, providers, Inngest jobs, or webhooks');
   });
 
   it('renders the Linear workflow from shared and profile env files', () => {

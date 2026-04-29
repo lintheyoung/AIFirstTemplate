@@ -111,20 +111,37 @@ Task classification:
 
 Repository playbooks:
 
-- For `/api/v1` route changes, read `docs/api-authoring-playbook.md` before
-  editing.
-- For capability changes, read `docs/tool-authoring-playbook.md` before editing.
-- For provider changes, read `docs/provider-authoring-playbook.md` before
-  editing.
+- For `/api/v1` route changes, read `docs/pestgg-api-design-manual.md` and
+  `docs/api-authoring-playbook.md` before editing.
+- For capability changes, read `docs/pestgg-api-design-manual.md` and
+  `docs/tool-authoring-playbook.md` before editing.
+- For provider changes, read `docs/pestgg-api-design-manual.md` and
+  `docs/provider-authoring-playbook.md` before editing.
+- For Inngest job or provider webhook changes, read
+  `docs/pestgg-api-design-manual.md` before editing and confirm the change uses
+  the correct API category.
 - For environment or deployment changes, read `docs/environment-runbook.md` and
   `docs/deployment-runbook.md` before editing.
 
 API work rules:
 
+- `docs/pestgg-api-design-manual.md` is the product API contract. If an issue
+  touches `/api/v1`, a capability, provider adapter, Inngest job, or webhook,
+  read the manual before implementation and cite the relevant contract in the
+  Linear handoff.
+- If the Linear issue lacks a clear API Contract block for API-affecting work,
+  ask for the missing contract details in Linear, move the issue to
+  `Human Review`, and stop instead of guessing.
 - All `/api/v1/*` routes must require Clerk authentication and call
   `requireClerkActor()` in the route handler before accessing workspace data.
 - API handlers must return the normalized API response envelope and must not
   return raw framework errors for handled failures.
+- API JSON fields use `snake_case`; routes use versioned `/api/v1` paths and
+  resource-oriented names.
+- Long-running provider work must use jobs and Inngest rather than waiting
+  inside a mobile HTTP request.
+- Provider webhook routes must live under `/api/webhooks/<provider>/<event>`
+  and must verify signatures before mutating state.
 - Keep product-specific behavior out of `lib/auth`, `lib/request`,
   `lib/storage`, and `lib/workspaces` unless the issue explicitly changes that
   platform layer.
@@ -203,6 +220,10 @@ Implementation handoff comment format:
 ### Endpoint or capability
 - ...
 
+### API manual
+- Manual reviewed: yes / not applicable
+- Contract impact: method/path/auth/workspace/request/response/errors/async
+
 ### Caveats
 - None.
 ```
@@ -218,7 +239,8 @@ GitHub delivery rules:
   the latest validation output is recorded.
 - Before moving to `Human Review`, make sure relevant validation has passed,
   `gh pr checks` is green when checks exist, local opencode review is satisfied,
-  any optional external GitHub review checks are satisfied, and a brief
+  any optional external GitHub review checks are satisfied, API-affecting work
+  has been checked against `docs/pestgg-api-design-manual.md`, and a brief
   self-review has been completed.
 
 Local opencode review policy:
@@ -241,6 +263,9 @@ Local opencode review policy:
 - If either round returns `changes_requested`, create one Linear review comment
   and one GitHub PR review/comment summarizing the requested changes, move the
   issue to `Rework`, and stop.
+- If API-affecting work violates `docs/pestgg-api-design-manual.md`, treat that
+  as `changes_requested`, summarize the mismatch, move the issue to `Rework`,
+  and stop.
 - If either round returns `needs_human_info`, create one Linear review comment
   and one GitHub PR review/comment summarizing the missing decision or context,
   move the issue to `Human Review`, and stop.

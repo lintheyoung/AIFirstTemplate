@@ -81,6 +81,23 @@ Create one Linear project for this repository and add the states described in
 Use [templates/LINEAR_ISSUE_TEMPLATE.md](templates/LINEAR_ISSUE_TEMPLATE.md)
 when writing issues that should be executable by Symphony.
 
+## API Design Gate
+
+Symphony must treat [../docs/pestgg-api-design-manual.md](../docs/pestgg-api-design-manual.md)
+as the product API contract for all PestGGApp backend work. Any issue that
+touches `/api/v1`, a capability, provider adapter, Inngest job, or provider
+webhook must read that manual before implementation.
+
+API-related issues should include the API Contract block from
+[templates/LINEAR_ISSUE_TEMPLATE.md](templates/LINEAR_ISSUE_TEMPLATE.md). If the
+contract is missing or vague, Symphony should ask for the missing information in
+Linear and move the issue to `Human Review` instead of guessing.
+
+Pull requests that change API behavior must explain how they follow the manual:
+method and path, auth behavior, workspace rule, request shape, response shape,
+errors, async behavior, and tests. A PR that conflicts with the API manual
+should go to `Rework`, not `Human Review` or `Merging`.
+
 ## Linear Intake Environment
 
 Symphony polls Linear through the workflow rendered from `.env.local` and the

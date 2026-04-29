@@ -3,6 +3,10 @@
 Use this guide when adding or changing public backend routes. It is written for
 humans and for Symphony agents working from Linear issues.
 
+For product-level API design rules, read
+`docs/pestgg-api-design-manual.md` first. This playbook is the implementation
+checklist for turning that contract into routes, services, tests, and docs.
+
 ## Route Contract
 
 Public application routes live under `app/api/v1`. Every `/api/v1/*` route is
@@ -24,17 +28,19 @@ from `/api/v1` routes.
 
 ## Add A REST Endpoint
 
-1. Create or update `app/api/v1/<resource>/route.ts`.
-2. Add validation at the route or service boundary. Prefer explicit `zod`
+1. Confirm the endpoint fits the product contract in
+   `docs/pestgg-api-design-manual.md`.
+2. Create or update `app/api/v1/<resource>/route.ts`.
+3. Add validation at the route or service boundary. Prefer explicit `zod`
    schemas for request bodies and query parameters.
-3. Call `requireClerkActor()` before dispatching to services.
-4. Put durable business behavior in `lib/<resource>/service.ts`.
-5. Keep storage, database, queue, and provider calls behind existing adapters.
-6. Add integration coverage in `tests/integration/api-v1-routes.test.ts` or a
+4. Call `requireClerkActor()` before dispatching to services.
+5. Put durable business behavior in `lib/<resource>/service.ts`.
+6. Keep storage, database, queue, and provider calls behind existing adapters.
+7. Add integration coverage in `tests/integration/api-v1-routes.test.ts` or a
    focused integration test beside it.
-7. Update docs if the endpoint is part of the supported template surface.
-8. Run `npm run typecheck`, `npm test`, and `npm run lint`.
-9. Run `npm run smoke:local` when a local server is available.
+8. Update docs if the endpoint is part of the supported template surface.
+9. Run `npm run typecheck`, `npm test`, and `npm run lint`.
+10. Run `npm run smoke:local` when a local server is available.
 
 ## API Addition Template
 
@@ -208,7 +214,7 @@ The rule is the contract: clients receive a stable response envelope and a
 
 Before editing an API issue, Symphony should classify the ticket:
 
-- API route: read this file first.
+- API route: read `docs/pestgg-api-design-manual.md` and this file first.
 - Capability: also read `docs/tool-authoring-playbook.md`.
 - Provider: also read `docs/provider-authoring-playbook.md`.
 - Deployment or env: also read `docs/environment-runbook.md` and
